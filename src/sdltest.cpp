@@ -51,6 +51,8 @@ int main(int argc, char* argv[]) {
 		SDL_Quit();
 		return 3;
 	}
+	
+	Uint32 *buffer32 = new Uint32[SCREEN_WIDTH * SCREEN_HEIGHT];
 
 	Uint32 *buffer32 = new Uint32[SCREEN_WIDTH * SCREEN_HEIGHT];
 
