@@ -7,6 +7,8 @@
 //============================================================================
 
 #include <iostream>
+#include <stdio.h>
+#include <cstring>
 #include <SDL2/SDL.h>
 using namespace std;
 
@@ -49,6 +51,15 @@ int main(int argc, char* argv[]) {
 		SDL_Quit();
 		return 3;
 	}
+
+	Uint32 *buffer32 = new Uint32[SCREEN_WIDTH * SCREEN_HEIGHT];
+
+	memset(buffer32,128,SCREEN_HEIGHT*SCREEN_WIDTH*sizeof(Uint32));
+
+	SDL_UpdateTexture(texture, NULL,buffer32,SCREEN_WIDTH*sizeof(Uint32));
+	SDL_RenderClear(renderer);
+	SDL_RenderCopy(renderer, texture, NULL,NULL);
+	SDL_RenderPresent(renderer);
 
 	SDL_Event event;
 
