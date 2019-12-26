@@ -1,1 +1,1 @@
-SDL project from Cave of Programming tutorial. How to create a Window
+SDL project from Cave of Programming tutorial. How to create a particule explosion. This is almost the same code as found in the cave of programming github page.
