@@ -6,81 +6,67 @@
 // Description : Hello World in C++, Ansi-style
 //============================================================================
 
+#include "Screen.h"
 #include <iostream>
-#include <stdio.h>
-#include <cstring>
-#include <SDL2/SDL.h>
-using namespace std;
-
+#include <Math.h>
+#include <stdlib.h>
+#include <ctime>
+#include "Swarm.h"
+#include "Particle.h"
 int main(int argc, char* argv[]) {
 
-	const int SCREEN_HEIGHT = 600;
-	const int SCREEN_WIDTH = 800;
-	SDL_Init(SDL_INIT_EVERYTHING);
+	srand(time(NULL));
 
-	SDL_Window * window = 0;
+	mySdl::Screen screen;
 
-	window = SDL_CreateWindow("Hello World",
-	SDL_WINDOWPOS_CENTERED,
-	SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
-
-	if (window == NULL) {
-		SDL_Quit();
-		printf("cannot open window %s\n", SDL_GetError());
-		return 2;
+	if(!screen.init()){
+		std::cout << "couldn't initialize sdl";
 	}
 
-	SDL_Renderer * renderer = SDL_CreateRenderer(window, -1,
-			SDL_RENDERER_PRESENTVSYNC);
+	mySdl::Swarm swarm;
+	const int WIDTH = mySdl::Screen::SCREEN_WIDTH/2;
+	const int HEIGHT = mySdl::Screen::SCREEN_HEIGHT/2;
+	while(true){
 
-	SDL_Texture * texture = SDL_CreateTexture(renderer,
-			SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STATIC, SCREEN_WIDTH,
-			SCREEN_HEIGHT);
+		int elapsed = SDL_GetTicks();
+		swarm.update(elapsed);
+		unsigned char green = (unsigned char)((1+cos(elapsed * 0.0001)* 128));
+		unsigned char red = (unsigned char)((1+cos(elapsed * 0.0002)* 128));
+		unsigned char blue = (unsigned char)((1+cos(elapsed * 0.0001)* 128));
 
-	if (renderer == NULL) {
-		printf("%s\n", SDL_GetError());
-		SDL_DestroyWindow(window);
-		SDL_Quit();
-		return 2;
-	}
+		const mySdl::Particle * pParticle = swarm.getParticles();
 
-	if (texture == NULL) {
-		printf("%s\n", SDL_GetError());
-		SDL_DestroyRenderer(renderer);
-		SDL_DestroyWindow(window);
-		SDL_Quit();
-		return 3;
-	}
-	
-	Uint32 *buffer32 = new Uint32[SCREEN_WIDTH * SCREEN_HEIGHT];
+		for(int i =0; i<mySdl::Swarm::NPARTICLES; i++){
+			mySdl::Particle particle = pParticle[i];
 
-	Uint32 *buffer32 = new Uint32[SCREEN_WIDTH * SCREEN_HEIGHT];
+			int x = (particle.m_x +1) * WIDTH;
+			int y = particle.m_y * WIDTH + HEIGHT;
 
-	memset(buffer32,0x32,SCREEN_HEIGHT*SCREEN_WIDTH*sizeof(Uint32));
+			screen.setPixels(x, y, red, green, blue);
+		}
+		/*
 
-	SDL_UpdateTexture(texture, NULL,buffer32,SCREEN_WIDTH*sizeof(Uint32));
-	SDL_RenderClear(renderer);
-	SDL_RenderCopy(renderer, texture, NULL,NULL);
-	SDL_RenderPresent(renderer);
+		std::cout << (int)green << " " << (int)red << " " <<(int) blue << "\n";
+		//unsigned char green = (unsigned char)((1 + sin(elapsed * 0.0001)) * 128);
+		//unsigned char red = (unsigned char)((1 + sin(elapsed * 0.0002)) * 128);
+		//unsigned char blue = (unsigned char)((1 + sin(elapsed * 0.0003)) * 128);
 
-	SDL_Event event;
 
-	bool quit = false;
-
-	while (!quit) {
-
-		while (SDL_PollEvent(&event)) {
-			if (event.type == SDL_QUIT) {
-				quit = true;
+		for(int y =0; y< mySdl::Screen::SCREEN_HEIGHT; y++){
+			for(int x=0; x<mySdl::Screen::SCREEN_WIDTH; x++){
+				screen.setPixels(x,y,red,green,blue);
 			}
+		}*/
+
+		screen.boxBlur();
+
+		screen.screenUpdate();
+
+		if(!screen.processEvents()){
+			break;
 		}
 	}
 
-	// Cleanup and Quit
-	SDL_DestroyTexture(texture);
-	SDL_DestroyRenderer(renderer);
-	SDL_DestroyWindow(window);
-	SDL_Quit();
-
+	screen.close();
 	return 0;
 }
